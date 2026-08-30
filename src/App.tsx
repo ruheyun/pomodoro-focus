@@ -292,10 +292,12 @@ export default function App() {
             />
           </section>
 
-          {/* 右侧栏：今日统计 + 偏好设置（桌面端吸顶跟随） */}
-          <aside className="reveal d2 space-y-6 lg:sticky lg:top-8 lg:self-start">
+          {/* 右侧栏：今日统计 + 偏好设置（偏好设置底边与数据管理对齐） */}
+          <aside className="reveal d2 flex flex-col lg:sticky lg:top-8 lg:self-stretch">
             <StatsPanel stats={stats} onClear={() => setStats({})} />
-            <SettingsPanel settings={settings} onChange={updateSettings} />
+            <div className="mt-6 lg:mt-auto lg:pt-6">
+              <SettingsPanel settings={settings} onChange={updateSettings} />
+            </div>
           </aside>
         </main>
 
