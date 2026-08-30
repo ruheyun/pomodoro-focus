@@ -8,8 +8,10 @@ import TimerDial from "./components/TimerDial";
 import Controls from "./components/Controls";
 import StatsPanel from "./components/StatsPanel";
 import SettingsPanel from "./components/SettingsPanel";
+import DataPanel from "./components/DataPanel";
 import Toast, { type ToastData } from "./components/Toast";
 import TomatoGlyph from "./components/TomatoGlyph";
+import { mergeStats, type PomodoroData } from "./lib/data";
 
 const DEFAULT_SETTINGS: Settings = {
   focus: 25,
@@ -158,6 +160,13 @@ export default function App() {
   const updateSettings = (patch: Partial<Settings>) =>
     setSettings((s) => ({ ...s, ...patch }));
 
+  /* 从 JSON 文件导入：设置直接覆盖，统计按天合并取较大值 */
+  const handleImported = (data: PomodoroData) => {
+    setSettings(data.settings);
+    setStats((prev) => mergeStats(prev, data.stats));
+    showToast("数据导入成功，已合并到当前记录");
+  };
+
   const dateStr = new Date().toLocaleDateString("zh-CN", {
     month: "long",
     day: "numeric",
@@ -232,7 +241,7 @@ export default function App() {
             />
             <p className="mt-7 max-w-xs text-center text-xs leading-relaxed text-white/30">
               {mode === "focus"
-                ? "保持专注，完成后自动进入休息；每 4 个番茄迎来一次长休息。"
+                ? `保持专注，完成后进入休息；每 ${settings.longEvery} 个番茄迎来一次长休息。`
                 : "站起来走走，喝口水，让大脑放松一下。"}
             </p>
           </section>
@@ -245,11 +254,19 @@ export default function App() {
             <div className="reveal d3">
               <SettingsPanel settings={settings} onChange={updateSettings} />
             </div>
+            <div className="reveal d4">
+              <DataPanel
+                settings={settings}
+                stats={stats}
+                onImported={handleImported}
+                notify={showToast}
+              />
+            </div>
           </aside>
         </main>
 
-        <footer className="reveal d4 mt-14 text-center text-xs text-white/25">
-          所有数据仅保存在你的浏览器本地（localStorage），不会被上传。
+        <footer className="reveal d4 mt-14 text-center text-xs leading-relaxed text-white/25">
+          数据默认保存在浏览器本地，也可导出为 JSON 文件或关联本地文件自动保存，换电脑随身带走。
         </footer>
       </div>
 
