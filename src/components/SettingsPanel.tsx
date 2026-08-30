@@ -3,6 +3,7 @@ import type { Settings } from "../types";
 interface Props {
   settings: Settings;
   onChange: (patch: Partial<Settings>) => void;
+  className?: string;
 }
 
 type NumKey = "focus" | "short" | "long" | "longEvery";
@@ -15,9 +16,9 @@ const ROWS: { key: NumKey; label: string; min: number; max: number; step: number
 ];
 
 /** 自定义时长与偏好设置 */
-export default function SettingsPanel({ settings, onChange }: Props) {
+export default function SettingsPanel({ settings, onChange, className = "" }: Props) {
   return (
-    <section className="rounded-[26px] border border-white/[0.07] bg-white/[0.035] p-6 sm:p-7">
+    <section className={`rounded-[26px] border border-white/[0.07] bg-white/[0.035] p-6 sm:p-7 ${className}`}>
       <div className="flex items-center gap-2.5">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="transition-colors duration-500">
           <circle cx="12" cy="12" r="3" />

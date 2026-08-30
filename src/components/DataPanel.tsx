@@ -17,6 +17,7 @@ interface Props {
   stats: StatsMap;
   onImported: (data: PomodoroData) => void;
   notify: (msg: string) => void;
+  className?: string;
 }
 
 function IconDownload() {
@@ -54,7 +55,7 @@ function IconLink() {
  * 在支持的浏览器（Chrome / Edge）中可关联一个本地文件实现自动保存，
  * 换电脑时带上该文件即可。
  */
-export default function DataPanel({ settings, stats, onImported, notify }: Props) {
+export default function DataPanel({ settings, stats, onImported, notify, className = "" }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleRef = useRef<LocalFileHandle | null>(null);
   const [linkedName, setLinkedName] = useState<string | null>(null);
@@ -120,7 +121,7 @@ export default function DataPanel({ settings, stats, onImported, notify }: Props
   };
 
   return (
-    <section className="rounded-[26px] border border-white/[0.07] bg-white/[0.035] p-6 sm:p-7">
+    <section className={`flex flex-col rounded-[26px] border border-white/[0.07] bg-white/[0.035] p-6 sm:p-7 ${className}`}>
       <div className="flex items-center gap-2.5">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="transition-colors duration-500">
           <path d="M12 21c4.8 0 8.5-3.6 8.5-8.2 0-3-1.6-5.4-3.4-7.2C15.4 4 13.5 3 12 3S8.6 4 6.9 5.6c-1.8 1.8-3.4 4.2-3.4 7.2C3.5 17.4 7.2 21 12 21Z" />
@@ -186,7 +187,7 @@ export default function DataPanel({ settings, stats, onImported, notify }: Props
         </div>
       )}
 
-      <p className="mt-4 text-[11px] leading-relaxed text-white/30">
+      <p className="mt-auto pt-4 text-[11px] leading-relaxed text-white/30">
         换电脑使用：在旧电脑「导出 JSON」，把文件带到新电脑「导入」即可。
         同一天数据取较大值，重复导入不会重复累加。
         {pickerSupported ? "" : "当前浏览器不支持文件自动同步，可使用导出 / 导入。"}

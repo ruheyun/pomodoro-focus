@@ -281,24 +281,27 @@ export default function App() {
                 ? `保持专注，完成后进入休息；每 ${settings.longEvery} 个番茄迎来一次长休息。`
                 : "站起来走走，喝口水，让大脑放松一下。"}
             </p>
-          </section>
 
-          {/* 侧栏 */}
-          <aside className="space-y-6">
-            <div className="reveal d2">
-              <StatsPanel stats={stats} onClear={() => setStats({})} />
-            </div>
-            <div className="reveal d3">
-              <SettingsPanel settings={settings} onChange={updateSettings} />
-            </div>
-            <div className="reveal d4">
+            {/* 时钟下方：数据管理（左）+ 偏好设置（右） */}
+            <div className="mt-12 grid w-full max-w-3xl gap-5 sm:grid-cols-2">
               <DataPanel
+                className="reveal d3 h-full"
                 settings={settings}
                 stats={stats}
                 onImported={handleImported}
                 notify={showToast}
               />
+              <SettingsPanel
+                className="reveal d3 h-full"
+                settings={settings}
+                onChange={updateSettings}
+              />
             </div>
+          </section>
+
+          {/* 右侧栏：今日统计（桌面端吸顶跟随） */}
+          <aside className="reveal d2 lg:sticky lg:top-8 lg:self-start">
+            <StatsPanel stats={stats} onClear={() => setStats({})} />
           </aside>
         </main>
 
