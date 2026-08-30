@@ -282,9 +282,9 @@ export default function App() {
                 : "站起来走走，喝口水，让大脑放松一下。"}
             </p>
 
-            {/* 时钟下方：数据管理 */}
+            {/* 时钟下方：数据管理（收窄宽度） */}
             <DataPanel
-              className="reveal d3 mt-12 w-full max-w-3xl"
+              className="reveal d3 mt-12 w-full max-w-md"
               settings={settings}
               stats={stats}
               onImported={handleImported}
