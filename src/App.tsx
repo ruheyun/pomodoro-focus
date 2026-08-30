@@ -282,26 +282,20 @@ export default function App() {
                 : "站起来走走，喝口水，让大脑放松一下。"}
             </p>
 
-            {/* 时钟下方：数据管理（左）+ 偏好设置（右） */}
-            <div className="mt-12 grid w-full max-w-3xl gap-5 sm:grid-cols-2">
-              <DataPanel
-                className="reveal d3 h-full"
-                settings={settings}
-                stats={stats}
-                onImported={handleImported}
-                notify={showToast}
-              />
-              <SettingsPanel
-                className="reveal d3 h-full"
-                settings={settings}
-                onChange={updateSettings}
-              />
-            </div>
+            {/* 时钟下方：数据管理 */}
+            <DataPanel
+              className="reveal d3 mt-12 w-full max-w-3xl"
+              settings={settings}
+              stats={stats}
+              onImported={handleImported}
+              notify={showToast}
+            />
           </section>
 
-          {/* 右侧栏：今日统计（桌面端吸顶跟随） */}
-          <aside className="reveal d2 lg:sticky lg:top-8 lg:self-start">
+          {/* 右侧栏：今日统计 + 偏好设置（桌面端吸顶跟随） */}
+          <aside className="reveal d2 space-y-6 lg:sticky lg:top-8 lg:self-start">
             <StatsPanel stats={stats} onClear={() => setStats({})} />
+            <SettingsPanel settings={settings} onChange={updateSettings} />
           </aside>
         </main>
 
