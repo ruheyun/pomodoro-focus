@@ -68,6 +68,43 @@ export default function App() {
         : `${formatClock(remaining)} · ${MODE_LABEL[mode]}${status === "running" ? "中" : "（已暂停）"} — 番茄专注`;
   }, [remaining, status, mode]);
 
+  /* 标签页图标：计时中显示进度环与剩余分钟，待机恢复番茄图标 */
+  const defaultIconRef = useRef<string | null>(null);
+  useEffect(() => {
+    const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (!link) return;
+    if (defaultIconRef.current === null) defaultIconRef.current = link.href;
+    if (status === "idle") {
+      link.href = defaultIconRef.current;
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const color = mode === "focus" ? "#ff5f45" : mode === "short" ? "#55d48b" : "#5ca7ff";
+    const total = settings[mode] * 60;
+    const frac = total > 0 ? Math.min(1, Math.max(0, remaining / total)) : 0;
+    ctx.beginPath();
+    ctx.arc(32, 32, 24, 0, Math.PI * 2);
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = "rgba(255,244,234,0.18)";
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(32, 32, 24, -Math.PI / 2, -Math.PI / 2 + frac * Math.PI * 2);
+    ctx.lineWidth = 8;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = status === "paused" ? "#f5b95c" : color;
+    ctx.stroke();
+    ctx.fillStyle = "#fff4ea";
+    ctx.font = "700 22px 'IBM Plex Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(Math.ceil(remaining / 60)), 32, 34);
+    link.href = canvas.toDataURL("image/png");
+  }, [remaining, status, mode, settings]);
+
   const showToast = useCallback((msg: string) => {
     setToast({ id: Date.now(), msg });
   }, []);
