@@ -1,1 +1,187 @@
 @import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #1b110d;
+}
+
+body {
+  margin: 0;
+  font-family: "Noto Sans SC", "Space Grotesk", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: "Space Grotesk", "Noto Sans SC", sans-serif;
+}
+
+.font-timer {
+  font-family: "IBM Plex Mono", "Noto Sans SC", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 模式主题色 ---------- */
+[data-mode="focus"] {
+  --accent: #ff5f45;
+  --accent-ink: #2a1007;
+  --glow-strong: rgba(255, 95, 69, 0.4);
+}
+[data-mode="short"] {
+  --accent: #55d48b;
+  --accent-ink: #07230f;
+  --glow-strong: rgba(85, 212, 139, 0.38);
+}
+[data-mode="long"] {
+  --accent: #5ca7ff;
+  --accent-ink: #081c33;
+  --glow-strong: rgba(92, 167, 255, 0.38);
+}
+
+/* ---------- 环境光层（随模式交叉淡入淡出） ---------- */
+.glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.glow-focus {
+  background:
+    radial-gradient(52rem 38rem at 16% -8%, rgba(255, 95, 69, 0.17), transparent 64%),
+    radial-gradient(44rem 32rem at 102% 104%, rgba(255, 141, 64, 0.09), transparent 62%);
+}
+.glow-short {
+  background:
+    radial-gradient(52rem 38rem at 16% -8%, rgba(85, 212, 139, 0.15), transparent 64%),
+    radial-gradient(44rem 32rem at 102% 104%, rgba(180, 230, 120, 0.07), transparent 62%);
+}
+.glow-long {
+  background:
+    radial-gradient(52rem 38rem at 16% -8%, rgba(92, 167, 255, 0.15), transparent 64%),
+    radial-gradient(44rem 32rem at 102% 104%, rgba(120, 200, 230, 0.07), transparent 62%);
+}
+[data-mode="focus"] .glow-focus,
+[data-mode="short"] .glow-short,
+[data-mode="long"] .glow-long {
+  opacity: 1;
+}
+
+.ember {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(40rem 28rem at 88% -10%, rgba(255, 176, 97, 0.08), transparent 60%);
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(130% 95% at 50% 8%, transparent 55%, rgba(9, 4, 2, 0.55));
+}
+
+/* 颗粒噪点，覆盖全局 */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- 动效 ---------- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.reveal {
+  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.d1 {
+  animation-delay: 0.08s;
+}
+.d2 {
+  animation-delay: 0.16s;
+}
+.d3 {
+  animation-delay: 0.24s;
+}
+.d4 {
+  animation-delay: 0.34s;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+.toast-in {
+  animation: toastIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+  }
+}
+.bar {
+  animation: barGrow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: bottom;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+.blink {
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.045);
+  }
+}
+.breathe {
+  animation: breathe 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
