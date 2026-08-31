@@ -101,7 +101,11 @@ export function downloadText(filename: string, text: string): void {
 
 export interface LocalFileHandle {
   name: string;
+  getFile: () => Promise<File>;
   createWritable: () => Promise<{ write: (data: string) => Promise<void>; close: () => Promise<void> }>;
+  /** 可选：请求读 / 读写权限（Chrome / Edge） */
+  requestPermission?: (d: { mode: "read" | "readwrite" }) => Promise<"granted" | "denied" | "prompt">;
+  queryPermission?: (d: { mode: "read" | "readwrite" }) => Promise<"granted" | "denied" | "prompt">;
 }
 
 interface PickerWindow {
@@ -109,10 +113,42 @@ interface PickerWindow {
     suggestedName: string;
     types: { description: string; accept: Record<string, string[]> }[];
   }) => Promise<LocalFileHandle>;
+  showOpenFilePicker?: (options: {
+    multiple?: boolean;
+    types: { description: string; accept: Record<string, string[]> }[];
+  }) => Promise<LocalFileHandle[]>;
 }
 
 export function supportsFilePicker(): boolean {
   return typeof (window as PickerWindow).showSaveFilePicker === "function";
+}
+
+/** 弹出系统打开对话框选择 JSON 数据文件；用户取消或不支持时返回 null */
+export async function pickImportFile(): Promise<LocalFileHandle | null> {
+  const w = window as PickerWindow;
+  if (!w.showOpenFilePicker) return null;
+  try {
+    const [handle] = await w.showOpenFilePicker({
+      multiple: false,
+      types: [{ description: "番茄专注数据", accept: { "application/json": [".json"] } }],
+    });
+    return handle ?? null;
+  } catch {
+    return null; // 用户取消选择
+  }
+}
+
+/** 请求对文件的读写权限；成功（或浏览器默认放行）返回 true */
+export async function requestReadWrite(handle: LocalFileHandle): Promise<boolean> {
+  try {
+    if (typeof handle.requestPermission === "function") {
+      const perm = await handle.requestPermission({ mode: "readwrite" });
+      return perm === "granted";
+    }
+    return true; // 无该方法的浏览器交由 createWritable 自行提示
+  } catch {
+    return false;
+  }
 }
 
 /** 弹出系统保存对话框，返回文件句柄；用户取消返回 null */

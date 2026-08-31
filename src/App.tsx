@@ -198,10 +198,10 @@ export default function App() {
     setSettings((s) => ({ ...s, ...patch }));
 
   /* 从 JSON 文件导入：设置直接覆盖，统计按天合并取较大值 */
-  const handleImported = (data: PomodoroData) => {
+  const handleImported = (data: PomodoroData, message?: string) => {
     setSettings(data.settings);
     setStats((prev) => mergeStats(prev, data.stats));
-    showToast("数据导入成功，已合并到当前记录");
+    showToast(message ?? "数据导入成功，已合并到当前记录");
   };
 
   const dateStr = new Date().toLocaleDateString("zh-CN", {

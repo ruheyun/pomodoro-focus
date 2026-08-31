@@ -3,7 +3,9 @@ import type { Settings, StatsMap } from "../types";
 import {
   downloadText,
   parseData,
+  pickImportFile,
   pickLocalFile,
+  requestReadWrite,
   serializeData,
   supportsFilePicker,
   writeToFile,
@@ -15,7 +17,7 @@ import { todayKey } from "../lib/date";
 interface Props {
   settings: Settings;
   stats: StatsMap;
-  onImported: (data: PomodoroData) => void;
+  onImported: (data: PomodoroData, message?: string) => void;
   notify: (msg: string) => void;
   className?: string;
 }
@@ -86,7 +88,43 @@ export default function DataPanel({ settings, stats, onImported, notify, classNa
     notify("已导出 JSON 数据文件");
   };
 
-  const handleImportClick = () => fileInputRef.current?.click();
+  /**
+   * 导入 JSON：
+   * - 支持的浏览器（Chrome / Edge）改用系统文件选择器，拿到可写句柄，
+   *   导入成功后自动关联该文件，之后的变化会自动写回（浏览器会请求一次写入权限）。
+   * - 不支持的浏览器回退到隐藏的 <input type="file">，仅导入不关联。
+   */
+  const handleImport = async () => {
+    if (supportsFilePicker()) {
+      const handle = await pickImportFile();
+      if (!handle) return; // 用户取消
+      try {
+        const file = await handle.getFile();
+        const text = await file.text();
+        const data = parseData(text);
+        if (!data) {
+          notify("文件无效，导入失败");
+          return;
+        }
+        const canWrite = await requestReadWrite(handle);
+        if (canWrite) {
+          handleRef.current = handle;
+          setLinkedName(handle.name);
+        }
+        onImported(
+          data,
+          canWrite
+            ? "导入成功 · 已关联该文件，将自动保存"
+            : "导入成功（未获得写入权限，未关联）"
+        );
+      } catch {
+        notify("文件读取失败");
+      }
+      return;
+    }
+    // 回退方案：隐藏文件输入框
+    fileInputRef.current?.click();
+  };
 
   const handleFileChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -141,7 +179,7 @@ export default function DataPanel({ settings, stats, onImported, notify, classNa
           导出 JSON
         </button>
         <button
-          onClick={handleImportClick}
+          onClick={handleImport}
           className="flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-white/75 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 hover:text-white active:translate-y-0 active:scale-[0.97]"
         >
           <IconUpload />
@@ -190,7 +228,9 @@ export default function DataPanel({ settings, stats, onImported, notify, classNa
       <p className="mt-auto pt-4 text-[11px] leading-relaxed text-white/30">
         换电脑使用：在旧电脑「导出 JSON」，把文件带到新电脑「导入」即可。
         同一天数据取较大值，重复导入不会重复累加。
-        {pickerSupported ? "" : "当前浏览器不支持文件自动同步，可使用导出 / 导入。"}
+        {pickerSupported
+          ? "导入时会自动关联所选文件，之后数据变化自动写回，无需重复导出。"
+          : "当前浏览器不支持文件自动同步，可使用导出 / 导入。"}
       </p>
     </section>
   );
